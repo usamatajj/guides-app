@@ -1,21 +1,33 @@
-import React, { useState } from 'react'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import React, { useEffect, useState } from 'react'
 import { Dimensions, GestureResponderEvent } from 'react-native'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { Checkbox } from 'react-native-paper'
-import { BookItem } from 'utils/types'
+import { Button, Checkbox, useTheme } from 'react-native-paper'
+import { BookItem, RootStackParamList } from 'utils/types'
 
 type Props = {
   item: BookItem
+  selected: boolean
   onPress: () => void
 }
 
-const BookListItem = ({ item, onPress }: Props) => {
+const BookListItem = ({ item, onPress, selected = false }: Props) => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+  const { colors } = useTheme()
   const [checked, setChecked] = useState<boolean>(false)
   const onCheck = (e: GestureResponderEvent) => {
     e.stopPropagation()
     onPress()
     setChecked(!checked)
   }
+
+  const previewBook = (e: GestureResponderEvent) => {
+    e.stopPropagation()
+    navigation.navigate('PreviewBook')
+  }
+  useEffect(() => {
+    setChecked(selected)
+  }, [selected])
   return (
     <TouchableOpacity onPress={onCheck}>
       <View style={styles.itemStyle}>
@@ -23,7 +35,17 @@ const BookListItem = ({ item, onPress }: Props) => {
           status={checked ? 'checked' : 'unchecked'}
           onPress={onCheck}
         />
-        <Text style={styles.nameStyles}>{item.name}</Text>
+        <View style={styles.bookInfoStyles}>
+          <View style={styles.bookDescriptionStyles}>
+            <Text style={styles.subjectNameStyles}>{item.name}</Text>
+            <Text
+              style={{ ...styles.priceStyles, color: colors.primary }}
+            >{`Rs. ${item.price}`}</Text>
+          </View>
+          <Button mode="text" onPress={previewBook}>
+            <Text style={styles.previewButtonStyles}>Preview</Text>
+          </Button>
+        </View>
       </View>
     </TouchableOpacity>
   )
@@ -34,16 +56,35 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    width: Dimensions.get('screen').width - 35,
+    width: Dimensions.get('screen').width - 60,
     marginBottom: 10,
   },
 
-  nameStyles: {
+  bookInfoStyles: {
+    width: Dimensions.get('screen').width - 110,
+    height: 50,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginLeft: 20,
+  },
+  subjectNameStyles: {
     fontWeight: '600',
     fontSize: 20,
-    color: '#000',
     textAlignVertical: 'center',
-    marginHorizontal: 20,
+  },
+  priceStyles: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  previewButtonStyles: {
+    textDecorationLine: 'underline',
+  },
+  bookDescriptionStyles: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    rowGap: 2,
   },
 })
 

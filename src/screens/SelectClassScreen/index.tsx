@@ -11,7 +11,7 @@ import React, { useState } from 'react'
 import { NavigationProp } from '@react-navigation/native'
 import { ClassItem } from 'utils/types'
 
-import ClassListItem from 'components/ClassListItem'
+import ClassListItem from '@components/ClassListItem'
 
 const DATA: ClassItem[] = [
   {

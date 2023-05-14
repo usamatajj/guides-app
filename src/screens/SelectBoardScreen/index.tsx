@@ -10,7 +10,7 @@ import { Appbar, Button, useTheme } from 'react-native-paper'
 import React, { useState } from 'react'
 import { NavigationProp } from '@react-navigation/native'
 import { BoardItem } from 'utils/types'
-import BoardListItem from 'components/BoardListItem'
+import BoardListItem from '@components/BoardListItem'
 // Images
 const board_1 = require('@assets/images/board_1.png')
 const board_2 = require('@assets/images/board_2.png')

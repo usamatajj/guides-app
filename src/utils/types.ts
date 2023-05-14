@@ -16,4 +16,16 @@ export type BookItem = {
   name: string
   title: string
   description: string
+  price: string
+  selected?: boolean
+}
+
+export type RootStackParamList = {
+  Login: undefined
+  OTP: undefined
+  Dashboard: undefined
+  SelectBoard: undefined
+  SelectClass: undefined
+  SelectBook: undefined
+  PreviewBook: undefined
 }

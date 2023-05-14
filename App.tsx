@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { StatusBar } from 'react-native'
 
+import { RootStackParamList } from './src/utils/types'
+
 // Project Imports
 import LoginScreen from './src/screens/LoginScreen'
 import OTPScreen from './src/screens/OTPScreen'
@@ -11,6 +13,7 @@ import DashboardScreen from './src/screens/DashboardScreen'
 import SelectBoardScreen from './src/screens/SelectBoardScreen'
 import SelectClassScreen from './src/screens/SelectClassScreen'
 import SelectBookScreen from './src/screens/SelectBookScreen'
+import PreviewScreen from './src/screens/PreviewScreen'
 
 // Theme
 import theme from './src/ui/theme'
@@ -18,7 +21,7 @@ import config from './src/ui/transitionConfig'
 import { enableScreens } from 'react-native-screens'
 enableScreens()
 
-const Stack = createNativeStackNavigator()
+export const Stack = createNativeStackNavigator<RootStackParamList>()
 
 const App = () => {
   return (
@@ -39,6 +42,7 @@ const App = () => {
           <Stack.Screen name="SelectBoard" component={SelectBoardScreen} />
           <Stack.Screen name="SelectClass" component={SelectClassScreen} />
           <Stack.Screen name="SelectBook" component={SelectBookScreen} />
+          <Stack.Screen name="PreviewBook" component={PreviewScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
