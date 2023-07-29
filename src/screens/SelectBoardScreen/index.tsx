@@ -1,16 +1,14 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Dimensions,
-  FlatList,
-} from 'react-native'
-import { Appbar, Button, useTheme } from 'react-native-paper'
-import React, { useState } from 'react'
-import { NavigationProp } from '@react-navigation/native'
-import { BoardItem } from 'utils/types'
+import React, { useEffect } from 'react'
+import { BoardItem, RootStackParamList } from 'utils/types'
 import BoardListItem from '@components/BoardListItem'
+import { Appbar, useTheme } from 'react-native-paper'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { MD3Colors } from 'react-native-paper/lib/typescript/types'
+import { View, StyleSheet, Dimensions, FlatList } from 'react-native'
+import { withCheckInternet } from 'hoc/withCheckInternet'
+import { useNetInfo } from '@react-native-community/netinfo'
+const { Action, Header, Content } = Appbar
+
 // Images
 const board_1 = require('@assets/images/board_1.png')
 const board_2 = require('@assets/images/board_2.png')
@@ -24,13 +22,11 @@ const DATA: BoardItem[] = [
   { id: '4', title: 'Federal Board', icon: board_4 },
 ]
 
-const SelectBoardScreen = ({
-  navigation,
-}: {
-  navigation: NavigationProp<any>
-}) => {
-  const { colors, fonts } = useTheme()
-
+const SelectBoardScreen = () => {
+  const { colors } = useTheme()
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+  const netInfo = useNetInfo()
+  const styles = makeStyles(colors)
   const renderItem = ({ item }: { item: BoardItem }) => {
     console.log('ITEM RENDERED')
     return (
@@ -42,23 +38,30 @@ const SelectBoardScreen = ({
       />
     )
   }
+
+  useEffect(() => {
+    if (netInfo.isConnected === false) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'NoInternet' }],
+      })
+    }
+  }, [netInfo.isConnected])
+
   return (
-    <View
-      style={{
-        backgroundColor: colors.background,
-        ...StyleSheet.absoluteFillObject,
-      }}
-    >
-      <Appbar.Header>
-        <Appbar.Action
+    <View style={styles.background}>
+      <Header>
+        {/* @ts-ignore */}
+        <Action
           icon="arrow-left"
           onPress={() => {
             console.log('go back')
             navigation.goBack()
           }}
         />
-        <Appbar.Content title="Select Board" subtitle={'Select Screen'} />
-      </Appbar.Header>
+        {/* @ts-ignore */}
+        <Content title="Select Board" subtitle={'Select Screen'} />
+      </Header>
       <View style={styles.cardStyles}>
         <FlatList
           data={DATA}
@@ -69,13 +72,18 @@ const SelectBoardScreen = ({
     </View>
   )
 }
-const styles = StyleSheet.create({
-  cardStyles: {
-    ...StyleSheet.absoluteFillObject,
-    top: Dimensions.get('window').height - 610,
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-})
+const makeStyles = (colors: MD3Colors) =>
+  StyleSheet.create({
+    background: {
+      backgroundColor: colors.background,
+      ...StyleSheet.absoluteFillObject,
+    },
+    cardStyles: {
+      ...StyleSheet.absoluteFillObject,
+      top: Dimensions.get('window').height - 595,
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
+  })
 
 export default SelectBoardScreen

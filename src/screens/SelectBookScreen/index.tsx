@@ -7,11 +7,14 @@ import {
   FlatList,
 } from 'react-native'
 import { Appbar, Button, Checkbox, Surface, useTheme } from 'react-native-paper'
-import React, { useState } from 'react'
-import { NavigationProp } from '@react-navigation/native'
-import { BookItem } from 'utils/types'
-
+import React, { useEffect, useState } from 'react'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { BookItem, RootStackParamList } from 'utils/types'
 import BookListItem from '@components/BookListItem'
+import { MD3Colors } from 'react-native-paper/lib/typescript/types'
+import { withCheckInternet } from 'hoc/withCheckInternet'
+import { useNetInfo } from '@react-native-community/netinfo'
+const { Action, Header, Content } = Appbar
 
 const DATA: BookItem[] = [
   {
@@ -56,14 +59,14 @@ const DATA: BookItem[] = [
   },
 ]
 
-const SelectBookScreen = ({
-  navigation,
-}: {
-  navigation: NavigationProp<any>
-}) => {
-  const { Action, Content } = Appbar
-  const { colors, fonts } = useTheme()
+const SelectBookScreen = () => {
+  const { colors } = useTheme()
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+  const netInfo = useNetInfo()
+  const styles = makeStyles(colors)
   const [selectedBooks, setSelectedBooks] = useState<string[]>([])
+  console.log('🚀 ~ file: index.tsx:68 ~ selectedBooks:', selectedBooks)
+
   const [selectAll, setSelectAll] = useState<boolean>(false)
   const renderItem = ({ item }: { item: BookItem }) => {
     return (
@@ -80,22 +83,29 @@ const SelectBookScreen = ({
       />
     )
   }
+
+  useEffect(() => {
+    if (netInfo.isConnected === false) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'NoInternet' }],
+      })
+    }
+  }, [netInfo.isConnected])
+
   return (
-    <View
-      style={{
-        backgroundColor: colors.background,
-        ...StyleSheet.absoluteFillObject,
-      }}
-    >
-      <Appbar.Header>
+    <View style={styles.background}>
+      <Header>
+        {/* @ts-ignore */}
         <Action
           icon="arrow-left"
           onPress={() => {
             navigation.goBack()
           }}
         />
+        {/* @ts-ignore */}
         <Content title="Select Books" subtitle={'Select Book'} />
-      </Appbar.Header>
+      </Header>
       <Surface elevation={1} style={styles.surfaceStyles}>
         <Checkbox
           status={selectAll ? 'checked' : 'unchecked'}
@@ -120,6 +130,7 @@ const SelectBookScreen = ({
           mode="contained"
           style={styles.purchaseButtonStyles}
           onPress={() => {
+            console.log(selectedBooks)
             console.log('Purchase Done')
           }}
           disabled={!selectedBooks.length}
@@ -130,43 +141,49 @@ const SelectBookScreen = ({
     </View>
   )
 }
-const styles = StyleSheet.create({
-  cardStyles: {
-    ...StyleSheet.absoluteFillObject,
-    top: Dimensions.get('window').height - 510,
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  purchaseButtonStyles: {
-    width: Dimensions.get('screen').width - 20,
-    fontSize: 20,
-    padding: 2,
-    marginBottom: 10,
-  },
-  surfaceStyles: {
-    width: Dimensions.get('screen').width - 30,
-    height: 80,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignContent: 'flex-start',
-    marginHorizontal: 15,
-    paddingHorizontal: 15,
-    gap: 5,
-  },
-  selectAllInfoStyles: {
-    borderColor: '#000',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  selectAllTitleStyle: {
-    fontWeight: '700',
-    fontSize: 18,
-  },
-  selectAllDescriptionStyle: {
-    width: Dimensions.get('screen').width - 70,
-    fontSize: 16,
-  },
-})
+const makeStyles = (colors: MD3Colors) =>
+  StyleSheet.create({
+    background: {
+      backgroundColor: colors.background,
+      ...StyleSheet.absoluteFillObject,
+    },
+    cardStyles: {
+      ...StyleSheet.absoluteFillObject,
+      top: Dimensions.get('window').height - 510,
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
+    purchaseButtonStyles: {
+      width: Dimensions.get('screen').width - 20,
+      fontSize: 20,
+      padding: 2,
+      marginBottom: 10,
+    },
+    surfaceStyles: {
+      width: Dimensions.get('screen').width - 30,
+      height: 80,
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignContent: 'flex-start',
+      marginHorizontal: 15,
+      paddingHorizontal: 15,
+      gap: 5,
+    },
+    selectAllInfoStyles: {
+      borderColor: '#000',
+      display: 'flex',
+      flexDirection: 'column',
+      color: colors.primary,
+    },
+    selectAllTitleStyle: {
+      fontWeight: '700',
+      fontSize: 18,
+    },
+    selectAllDescriptionStyle: {
+      width: Dimensions.get('screen').width - 70,
+      fontSize: 16,
+    },
+  })
 
 export default SelectBookScreen

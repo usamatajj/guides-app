@@ -7,11 +7,15 @@ import {
   FlatList,
 } from 'react-native'
 import { Appbar, Button, useTheme } from 'react-native-paper'
-import React, { useState } from 'react'
-import { NavigationProp } from '@react-navigation/native'
-import { ClassItem } from 'utils/types'
+import React, { useEffect, useState } from 'react'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { ClassItem, RootStackParamList } from 'utils/types'
 
 import ClassListItem from '@components/ClassListItem'
+import { withCheckInternet } from 'hoc/withCheckInternet'
+import { useNetInfo } from '@react-native-community/netinfo'
+
+const { Header, Content, Action } = Appbar
 
 const DATA: ClassItem[] = [
   {
@@ -44,13 +48,10 @@ const DATA: ClassItem[] = [
   },
 ]
 
-const SelectClassScreen = ({
-  navigation,
-}: {
-  navigation: NavigationProp<any>
-}) => {
+const SelectClassScreen = () => {
   const { colors, fonts } = useTheme()
-
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+  const netInfo = useNetInfo()
   const renderItem = ({ item }: { item: ClassItem }) => {
     return (
       <ClassListItem
@@ -61,6 +62,15 @@ const SelectClassScreen = ({
       />
     )
   }
+  useEffect(() => {
+    if (netInfo.isConnected === false) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'NoInternet' }],
+      })
+    }
+  }, [netInfo.isConnected])
+
   return (
     <View
       style={{
@@ -68,16 +78,18 @@ const SelectClassScreen = ({
         ...StyleSheet.absoluteFillObject,
       }}
     >
-      <Appbar.Header>
-        <Appbar.Action
+      <Header>
+        {/* @ts-ignore */}
+        <Action
           icon="arrow-left"
           onPress={() => {
             console.log('go back')
             navigation.goBack()
           }}
         />
-        <Appbar.Content title="Select Class" subtitle={'Select Screen'} />
-      </Appbar.Header>
+        {/* @ts-ignore */}
+        <Content title="Select Class" subtitle={'Select Screen'} />
+      </Header>
       <View style={styles.cardStyles}>
         <FlatList
           data={DATA}
@@ -91,7 +103,7 @@ const SelectClassScreen = ({
 const styles = StyleSheet.create({
   cardStyles: {
     ...StyleSheet.absoluteFillObject,
-    top: Dimensions.get('window').height - 610,
+    top: Dimensions.get('window').height - 595,
     flexDirection: 'column',
     alignItems: 'center',
   },
